@@ -79,12 +79,14 @@ List<Polyline> _parseTraficLines(String data) {
   final lines = <Polyline>[];
   for (final e in records) {
     final fields = e['fields'] as Map<String, dynamic>;
-    final points = coordinatesToLatLngList(
-      (fields['geo_shape']['coordinates'] as Iterable)
-          .cast<Iterable>()
-          .map((e) => List<double>.from(e))
-          .toList(),
-    );
+    final coords = (fields['geo_shape']['coordinates'] as Iterable)
+        .cast<Iterable>()
+        .map((e) => List<double>.from(e))
+        .toList();
+    final points = <LatLng>[];
+    for (final e in coords) {
+      points.add(LatLng(e[1], e[0]));
+    }
     lines.add(Polyline(points: points, color: Colors.red));
   }
   return lines;
