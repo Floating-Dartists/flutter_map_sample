@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_sample/map_view.dart';
-import 'package:flutter_map_sample/utils.dart';
 import 'package:latlong2/latlong.dart';
 
 class HomeView extends StatelessWidget {
