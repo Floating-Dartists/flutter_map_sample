@@ -1,14 +1,27 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_sample/map_view.dart';
+import 'package:flutter_map_sample/new_polyline_plugin/new_polyline_plugin.dart';
 import 'package:latlong2/latlong.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  final _updateCanvas = ValueNotifier<bool>(true);
+
+  @override
+  void dispose() {
+    _updateCanvas.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +39,11 @@ class HomeView extends StatelessWidget {
                     polylineLayerBuilder: () async {
                       final data = await rootBundle
                           .loadString('assets/trafic_data.json');
-                      final lines = kIsWeb
-                          ? _parseTraficLines(data)
-                          : await compute(_parseTraficLines, data);
-                      return PolylineLayerOptions(
+                      final lines = _parseTraficLines(data);
+                      return NewPolylineLayerOptions(
                         polylines: lines,
-                        polylineCulling: false,
+                        polylineCulling: true,
+                        updateCanvas: _updateCanvas.value,
                       );
                     },
                   ),
@@ -50,18 +62,27 @@ class HomeView extends StatelessWidget {
                     polylineLayerBuilder: () async {
                       final data =
                           await rootBundle.loadString('assets/snow_data.json');
-                      final lines = kIsWeb
-                          ? _parseSnowLines(data)
-                          : await compute(_parseSnowLines, data);
-                      return PolylineLayerOptions(
+                      final lines = _parseSnowLines(data);
+                      return NewPolylineLayerOptions(
                         polylines: lines,
-                        polylineCulling: false,
+                        polylineCulling: true,
+                        updateCanvas: _updateCanvas.value,
                       );
                     },
                   ),
                 ),
               ),
               child: const Text('Snow'),
+            ),
+            const SizedBox(height: 8),
+            ValueListenableBuilder<bool>(
+              valueListenable: _updateCanvas,
+              builder: (_, value, __) {
+                return Switch(
+                  value: value,
+                  onChanged: (_) => _updateCanvas.value = !value,
+                );
+              },
             ),
           ],
         ),
