@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_sample/polylines_test/polylines_test_view.dart';
 import 'package:latlong2/latlong.dart';
+
+import '../new_polyline_plugin/new_polyline_plugin.dart';
 
 typedef PolylineLayerBuilder = Future<LayerOptions> Function();
 
+class MapViewArgs {
+  final String title;
+  final double initialZoom;
+
+  /// Parsing method for the polyline data.
+  final PolylineLayerBuilder polylineLayerBuilder;
+
+  MapViewArgs({
+    required this.title,
+    this.initialZoom = 13.0,
+    required this.polylineLayerBuilder,
+  });
+}
+
 class MapView extends StatefulWidget {
+  static const routeName = '${PolylinesTestView.routeName}/map';
+
   final String title;
   final double initialZoom;
 
@@ -36,9 +55,16 @@ class _MapViewState extends State<MapView> {
             future: widget.polylineLayerBuilder(),
             builder: (_, snapshot) {
               final layer = snapshot.data;
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              if (layer == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
               return FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
+                  plugins: [NewPolylinePlugin()],
                   center: _center,
                   zoom: widget.initialZoom,
                 ),
@@ -51,7 +77,7 @@ class _MapViewState extends State<MapView> {
                       return const Text("© OpenStreetMap contributors");
                     },
                   ),
-                  if (layer != null) layer,
+                  layer,
                 ],
               );
             },
