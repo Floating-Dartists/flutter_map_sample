@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 class NewPolylineLayerOptions extends LayerOptions {
+  /// List of polylines to draw.
   final List<Polyline> polylines;
+
   final bool polylineCulling;
-  final bool updateCanvas;
+
+  /// {@macro newPolylinePainter.saveLayers}
+  ///
+  /// By default, this is value is set to `false` to improve performances on
+  /// layers containing a lot of [Polyline].
+  final bool saveLayers;
 
   NewPolylineLayerOptions({
     Key? key,
@@ -12,7 +19,7 @@ class NewPolylineLayerOptions extends LayerOptions {
     this.polylineCulling = false,
     // ignore: prefer_void_to_null
     Stream<Null>? rebuild,
-    this.updateCanvas = true,
+    this.saveLayers = false,
   }) : super(key: key, rebuild: rebuild) {
     if (polylineCulling) {
       for (var polyline in polylines) {

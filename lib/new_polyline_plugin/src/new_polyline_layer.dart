@@ -45,10 +45,7 @@ class NewPolylineLayer extends StatelessWidget {
 
           polylines.add(
             CustomPaint(
-              painter: NewPolylinePainter(
-                polylineOpt,
-                polylineOpts.updateCanvas,
-              ),
+              painter: NewPolylinePainter(polylineOpt, polylineOpts.saveLayers),
               size: size,
             ),
           );
@@ -75,9 +72,14 @@ class NewPolylineLayer extends StatelessWidget {
 
 class NewPolylinePainter extends CustomPainter {
   final Polyline polylineOpt;
-  final bool updateCanvas;
 
-  NewPolylinePainter(this.polylineOpt, this.updateCanvas);
+  /// {@template newPolylinePainter.saveLayers}
+  /// If `true`, the canvas will be updated on every frame by calling the
+  /// methods [Canvas.saveLayer] and [Canvas.restore].
+  /// {@endtemplate}
+  final bool saveLayers;
+
+  NewPolylinePainter(this.polylineOpt, this.saveLayers);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -123,7 +125,7 @@ class NewPolylinePainter extends CustomPainter {
     var borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
     if (polylineOpt.isDotted) {
       var spacing = polylineOpt.strokeWidth * 1.5;
-      if (updateCanvas) canvas.saveLayer(rect, Paint());
+      if (saveLayers) canvas.saveLayer(rect, Paint());
       if (borderPaint != null && filterPaint != null) {
         _paintDottedLine(
             canvas, polylineOpt.offsets, borderRadius, spacing, borderPaint);
@@ -131,10 +133,10 @@ class NewPolylinePainter extends CustomPainter {
             canvas, polylineOpt.offsets, radius, spacing, filterPaint);
       }
       _paintDottedLine(canvas, polylineOpt.offsets, radius, spacing, paint);
-      if (updateCanvas) canvas.restore();
+      if (saveLayers) canvas.restore();
     } else {
       paint.style = PaintingStyle.stroke;
-      if (updateCanvas) canvas.saveLayer(rect, Paint());
+      if (saveLayers) canvas.saveLayer(rect, Paint());
       if (borderPaint != null && filterPaint != null) {
         borderPaint.style = PaintingStyle.stroke;
         _paintLine(canvas, polylineOpt.offsets, borderPaint);
@@ -142,7 +144,7 @@ class NewPolylinePainter extends CustomPainter {
         _paintLine(canvas, polylineOpt.offsets, filterPaint);
       }
       _paintLine(canvas, polylineOpt.offsets, paint);
-      if (updateCanvas) canvas.restore();
+      if (saveLayers) canvas.restore();
     }
   }
 
@@ -173,10 +175,7 @@ class NewPolylinePainter extends CustomPainter {
 
   void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint) {
     if (offsets.isNotEmpty) {
-      final path = ui.Path()..moveTo(offsets[0].dx, offsets[0].dy);
-      for (var offset in offsets) {
-        path.lineTo(offset.dx, offset.dy);
-      }
+      final path = ui.Path()..addPolygon(offsets, false);
       canvas.drawPath(path, paint);
     }
   }

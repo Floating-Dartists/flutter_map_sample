@@ -16,10 +16,12 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final _updateCanvas = ValueNotifier<bool>(true);
+  final _optimizePolylines = ValueNotifier<bool>(false);
 
   @override
   void dispose() {
     _updateCanvas.dispose();
+    _optimizePolylines.dispose();
     super.dispose();
   }
 
@@ -43,7 +45,7 @@ class _HomeViewState extends State<HomeView> {
                       return NewPolylineLayerOptions(
                         polylines: lines,
                         polylineCulling: true,
-                        updateCanvas: _updateCanvas.value,
+                        saveLayers: _updateCanvas.value,
                       );
                     },
                   ),
@@ -66,7 +68,7 @@ class _HomeViewState extends State<HomeView> {
                       return NewPolylineLayerOptions(
                         polylines: lines,
                         polylineCulling: true,
-                        updateCanvas: _updateCanvas.value,
+                        saveLayers: _updateCanvas.value,
                       );
                     },
                   ),
@@ -75,18 +77,42 @@ class _HomeViewState extends State<HomeView> {
               child: const Text('Snow'),
             ),
             const SizedBox(height: 8),
-            ValueListenableBuilder<bool>(
-              valueListenable: _updateCanvas,
-              builder: (_, value, __) {
-                return Switch(
-                  value: value,
-                  onChanged: (_) => _updateCanvas.value = !value,
-                );
-              },
+            OptionSwitch(controller: _updateCanvas, label: 'Update canvas'),
+            const SizedBox(height: 8),
+            OptionSwitch(
+              controller: _optimizePolylines,
+              label: 'Optimize polylines',
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class OptionSwitch extends StatelessWidget {
+  final ValueNotifier<bool> controller;
+  final String label;
+
+  const OptionSwitch({Key? key, required this.controller, required this.label})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label),
+        ValueListenableBuilder<bool>(
+          valueListenable: controller,
+          builder: (_, value, __) {
+            return Switch(
+              value: value,
+              onChanged: (_) => controller.value = !value,
+            );
+          },
+        ),
+      ],
     );
   }
 }
