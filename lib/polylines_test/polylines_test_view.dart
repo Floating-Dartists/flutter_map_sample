@@ -3,18 +3,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_sample/map_view.dart';
+import 'package:flutter_map_sample/polylines_test/map_view.dart';
 import 'package:flutter_map_sample/new_polyline_plugin/new_polyline_plugin.dart';
 import 'package:latlong2/latlong.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+class PolylinesTestView extends StatefulWidget {
+  static const routeName = '/polylines_test';
+
+  const PolylinesTestView({Key? key}) : super(key: key);
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<PolylinesTestView> createState() => _PolylinesTestViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _PolylinesTestViewState extends State<PolylinesTestView> {
   final _updateCanvas = ValueNotifier<bool>(true);
   final _optimizePolylines = ValueNotifier<bool>(false);
 
@@ -28,50 +30,48 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Polylines')),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ElevatedButton(
-              onPressed: () => Navigator.push(
+              onPressed: () => Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => MapView(
-                    title: 'Trafic',
-                    polylineLayerBuilder: () async {
-                      final data = await rootBundle
-                          .loadString('assets/trafic_data.json');
-                      final lines = _parseTraficLines(data);
-                      return NewPolylineLayerOptions(
-                        polylines: lines,
-                        polylineCulling: true,
-                        saveLayers: _updateCanvas.value,
-                      );
-                    },
-                  ),
+                MapView.routeName,
+                arguments: MapViewArgs(
+                  title: 'Trafic',
+                  polylineLayerBuilder: () async {
+                    final data =
+                        await rootBundle.loadString('assets/trafic_data.json');
+                    final lines = _parseTraficLines(data);
+                    return NewPolylineLayerOptions(
+                      polylines: lines,
+                      polylineCulling: true,
+                      saveLayers: _updateCanvas.value,
+                    );
+                  },
                 ),
               ),
               child: const Text('Trafic'),
             ),
             const SizedBox(height: 8),
             ElevatedButton(
-              onPressed: () => Navigator.push(
+              onPressed: () => Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => MapView(
-                    title: 'Snow',
-                    initialZoom: 14.0,
-                    polylineLayerBuilder: () async {
-                      final data =
-                          await rootBundle.loadString('assets/snow_data.json');
-                      final lines = _parseSnowLines(data);
-                      return NewPolylineLayerOptions(
-                        polylines: lines,
-                        polylineCulling: true,
-                        saveLayers: _updateCanvas.value,
-                      );
-                    },
-                  ),
+                MapView.routeName,
+                arguments: MapViewArgs(
+                  title: 'Snow',
+                  polylineLayerBuilder: () async {
+                    final data =
+                        await rootBundle.loadString('assets/snow_data.json');
+                    final lines = _parseSnowLines(data);
+                    return NewPolylineLayerOptions(
+                      polylines: lines,
+                      polylineCulling: true,
+                      saveLayers: _updateCanvas.value,
+                    );
+                  },
                 ),
               ),
               child: const Text('Snow'),
